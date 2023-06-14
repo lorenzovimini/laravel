@@ -7,8 +7,23 @@ use Illuminate\Support\Facades\Validator;
 
 trait WithEnvTrait
 {
-    protected array $currentEnvData = [];
-    protected array $newEnvData =[];
+    protected string|null $appName = 'WTA';
+    protected string|null $dbHost = '127.0.0.1';
+    protected string|null $dbPort = '3306';
+    protected string|null $dbName = 'wtadmin';
+    protected string|null $dbUser = 'admin';
+    protected string|null $dbPassword = 'password01!';
+    protected array $currentEnvData = [
+        'APP_NAME' => 'WTA',
+        'APP_URL' => 'http://localhost',
+        'DB_HOST' => '127.0.0.1',
+        'DB_PORT' => '3306',
+        'DB_DATABASE' => 'wtadmin',
+        'DB_USERNAME' => 'admin',
+        'DB_PASSWORD' => 'password01!',
+        'LOG_CHANNEL' => 'daily',
+    ];
+    //protected array $newEnvData =[];
     /**
      * @return int
      */
@@ -21,6 +36,8 @@ trait WithEnvTrait
                 $resultOverWrite = $this->confirm('Do you want to overwrite your .env file?') ? self::SUCCESS : self::FAILURE;
                 if ($resultOverWrite === self::SUCCESS) {
                     $this->setEnv();
+                    $this->callSilent('key:generate');
+                    $this->callSilent('optimize:clear');
                 }
             } else {
                 $this->setEnv();
@@ -39,9 +56,9 @@ trait WithEnvTrait
             $currentEnvData = $this->envToArray(base_path() . '/.env');
             $this->appName = $this->ask('What is the name of your application?', $currentEnvData['APP_NAME'] ?? $this->appName);
             $this->dbHost = $this->ask('What is the db host of your application?', $currentEnvData['DB_HOST'] ?? $this->dbHost);
-            $this->dbName = $this->ask('What is the db name of your application?', $currentEnvData['DB_PORT'] ?? $this->dbName);
-            $this->dbPort = $this->ask('What is the db port of your application?', $currentEnvData['DB_DATABASE'] ?? $this->dbPort);
-            $this->dbUser = $this->ask('What is the db user of your application?', $currentEnvData['DB_DATABASE'] ?? $this->dbUser);
+            $this->dbName = $this->ask('What is the db name of your application?', $currentEnvData['DB_DATABASE'] ?? $this->dbName);
+            $this->dbPort = $this->ask('What is the db port of your application?', $currentEnvData['DB_PORT'] ?? $this->dbPort);
+            $this->dbUser = $this->ask('What is the db user of your application?', $currentEnvData['DB_USER'] ?? $this->dbUser);
             $this->dbPassword = $this->ask('What is the db password of your application?', $currentEnvData['DB_PASSWORD'] ?? $this->dbPassword);
             $result = $this->validateAppEnvData();
         }
@@ -55,8 +72,6 @@ trait WithEnvTrait
         $envData['DB_PASSWORD'] = $this->dbPassword;
 
         $result += $this->saveEnvFromArray($envData);
-        $result += $this->callSilent('key:generate');
-        $result += $this->callSilent('optimize:clear');
 
         return $result;
     }
@@ -97,14 +112,16 @@ trait WithEnvTrait
     protected function saveEnvFromArray(array $array): int
     {
         $newArray = [];
-        $c = 0;
+        $keyWithNewLine = ['APP_URL', 'LOG_LEVEL','DB_PASSWORD', 'SESSION_LIFETIME', 'MEMCACHED_HOST', 'REDIS_PORT','MAIL_FROM_NAME','AWS_USE_PATH_STYLE_ENDPOINT','PUSHER_APP_CLUSTER', 'VITE_PUSHER_APP_CLUSTER'];
         foreach ($array as $key => $value) {
-            if (preg_match('/\s/', $value) > 0 && (strpos($value, '"') > 0 && strpos($value, '"', -0) > 0)) {
+            if (preg_match('/\s/', $value) > 0 && strpos($value, '"') !== 0 && strrpos($value, '"') != (strlen($value) - 1)) {
                 $value = '"' . $value . '"';
             }
 
-            $newArray[$c] = $key . "=" . $value;
-            $c++;
+            $newArray[] = $key . "=" . $value;
+            if(in_array($key, $keyWithNewLine)){
+                $newArray[] = "";
+            }
         }
         $newArray = implode("\n", $newArray);
         file_put_contents(base_path() . '/.env', $newArray);
@@ -117,11 +134,18 @@ trait WithEnvTrait
      */
     protected function validateAppEnvData(): int
     {
-        $validator = Validator::make(['name' => $this->appName, 'dbHost' => $this->dbHost], [
+        $validator = Validator::make([
+            'name' => $this->appName,
+            'dbHost' => $this->dbHost,
+            'dbName' => $this->dbName,
+            'dbPort' => $this->dbPort,
+            'dbUser' => $this->dbUser,
+            'dbPassword' => $this->dbPassword,
+        ], [
             'name' => 'required|string|max:255',
             'dbHost' => 'required|string|max:255',
             'dbName' => 'required|string|max:255',
-            'dbPort' => 'required|number|digits_between:1,999999',
+            'dbPort' => 'required|digits_between:1,8',
             'dbUser' => 'required|string|max:255',
             'dbPassword' => 'required|string|max:255',
         ]);

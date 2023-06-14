@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class appUpdate extends Command
+class AppUpdate extends Command
 {
     /**
      * The name and signature of the console command.
@@ -23,7 +23,7 @@ class appUpdate extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         //
     }

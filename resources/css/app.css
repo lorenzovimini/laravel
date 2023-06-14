@@ -1,0 +1,10 @@
+td.filament-tables-actions-cell {
+    position: sticky;
+    position: -webkit-sticky;
+    right: 0;
+    background-color: #fff;
+}
+
+td.filament-tables-actions-cell.dark {
+    background-color: #1f2937;
+}

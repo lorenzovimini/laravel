@@ -1,0 +1,7 @@
+@import '../../vendor/filament/filament/resources/css/app.css';
+
+    td.filament-tables-actions-cell {
+        position: sticky;
+        position: -webkit-sticky;
+        right: 0;
+    }

@@ -52,16 +52,21 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         $rows = [
-            TextInput::make('name')->required()->label(trans('filament-user::user.resource.name')),
-            TextInput::make('email')->email()->required()->label(trans('filament-user::user.resource.email')),
-            Forms\Components\TextInput::make('password')->label(trans('filament-user::user.resource.password'))
+            TextInput::make('name')
+                ->required()
+                ->label(trans('filament-user::user.resource.name')),
+            TextInput::make('email')
+                ->email()
+                ->required()
+                ->label(trans('filament-user::user.resource.email')),
+            Forms\Components\TextInput::make('password')
+                ->label(trans('filament-user::user.resource.password'))
                 ->password()
                 ->maxLength(255)
                 ->dehydrateStateUsing(static function ($state) use ($form){
                     if(!empty($state)){
                         return Hash::make($state);
                     }
-
                     $user = User::find($form->getColumns());
                     if($user){
                         return $user->password;
@@ -70,7 +75,8 @@ class UserResource extends Resource
         ];
 
         if(config('filament-user.shield')){
-            $rows[] = Forms\Components\MultiSelect::make('roles')->relationship('roles', 'name')->label(trans('filament-user::user.resource.roles'));
+            $rows[] = Forms\Components\Select::make('user.roles')
+                ->label(trans('filament-user::user.resource.roles'));
         }
 
         $form->schema($rows);
@@ -85,11 +91,12 @@ class UserResource extends Resource
                 TextColumn::make('id')->sortable()->label(trans('filament-user::user.resource.id')),
                 TextColumn::make('name')->sortable()->searchable()->label(trans('filament-user::user.resource.name')),
                 TextColumn::make('email')->sortable()->searchable()->label(trans('filament-user::user.resource.email')),
-                BooleanColumn::make('email_verified_at')->sortable()->searchable()->label(trans('filament-user::user.resource.email_verified_at')),
                 Tables\Columns\TextColumn::make('created_at')->label(trans('filament-user::user.resource.created_at'))
-                    ->dateTime('M j, Y')->sortable(),
+                    ->dateTime('M j, Y')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')->label(trans('filament-user::user.resource.updated_at'))
-                    ->dateTime('M j, Y')->sortable(),
+                    ->dateTime('M j, Y')
+                    ->sortable(),
 
             ])
             ->filters([
