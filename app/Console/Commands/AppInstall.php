@@ -34,7 +34,7 @@ class AppInstall extends Command
     {
         $figlet = new Figlet();
         echo $figlet
-            ->setFont(base_path() . '/resources/console-fonts/standard.flf')
+            ->setFont(base_path().'/resources/console-fonts/standard.flf')
             ->render('WtaInstaller');
         $result = $this->setAppEnv();
         $result += $this->setCore();
@@ -42,14 +42,11 @@ class AppInstall extends Command
         return $result;
     }
 
-    /**
-     * @return int
-     */
     protected function setCore(): int
     {
         $this->task('Install Core', function () {
-
         });
+
         return self::SUCCESS;
     }
 }

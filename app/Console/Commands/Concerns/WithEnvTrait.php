@@ -8,11 +8,17 @@ use Illuminate\Support\Facades\Validator;
 trait WithEnvTrait
 {
     protected string|null $appName = 'WTA';
+
     protected string|null $dbHost = '127.0.0.1';
+
     protected string|null $dbPort = '3306';
+
     protected string|null $dbName = 'wtadmin';
+
     protected string|null $dbUser = 'admin';
+
     protected string|null $dbPassword = 'password01!';
+
     protected array $currentEnvData = [
         'APP_NAME' => 'WTA',
         'APP_URL' => 'http://localhost',
@@ -23,16 +29,15 @@ trait WithEnvTrait
         'DB_PASSWORD' => 'password01!',
         'LOG_CHANNEL' => 'daily',
     ];
+
     //protected array $newEnvData =[];
-    /**
-     * @return int
-     */
+
     protected function setAppEnv(): int
     {
         $result = self::SUCCESS;
-        if($this->option('force') || !File::exists(base_path() . '/.env')) {
+        if ($this->option('force') || ! File::exists(base_path().'/.env')) {
             $result = self::FAILURE;
-            if (File::exists(base_path() . '/.env')) {
+            if (File::exists(base_path().'/.env')) {
                 $resultOverWrite = $this->confirm('Do you want to overwrite your .env file?') ? self::SUCCESS : self::FAILURE;
                 if ($resultOverWrite === self::SUCCESS) {
                     $this->setEnv();
@@ -43,17 +48,15 @@ trait WithEnvTrait
                 $this->setEnv();
             }
         }
+
         return $result;
     }
 
-    /**
-     * @return int
-     */
     protected function setEnv(): int
     {
         $result = self::FAILURE;
         while ($result === self::FAILURE) {
-            $currentEnvData = $this->envToArray(base_path() . '/.env');
+            $currentEnvData = $this->envToArray(base_path().'/.env');
             $this->appName = $this->ask('What is the name of your application?', $currentEnvData['APP_NAME'] ?? $this->appName);
             $this->dbHost = $this->ask('What is the db host of your application?', $currentEnvData['DB_HOST'] ?? $this->dbHost);
             $this->dbName = $this->ask('What is the db name of your application?', $currentEnvData['DB_DATABASE'] ?? $this->dbName);
@@ -63,7 +66,7 @@ trait WithEnvTrait
             $result = $this->validateAppEnvData();
         }
 
-        $envData = $this->envToArray(base_path() . '/.env.example');
+        $envData = $this->envToArray(base_path().'/.env.example');
         $envData['APP_NAME'] = $this->appName;
         $envData['DB_HOST'] = $this->dbHost;
         $envData['DB_PORT'] = $this->dbPort;
@@ -77,61 +80,57 @@ trait WithEnvTrait
     }
 
     /**
-     * @param string $file
      * @return array<string, string|null>
      */
     protected function envToArray(string $file): ?array
     {
-        if(!File::exists($file)) {
+        if (! File::exists($file)) {
             return null;
         }
         $string = file_get_contents($file);
         $string = preg_split('/\n+/', $string);
-        $returnArray = array();
+        $returnArray = [];
 
         foreach ($string as $one) {
             if (preg_match('/^(#\s)/', $one) === 1 || preg_match('/^([\\n\\r]+)/', $one)) {
                 continue;
             }
-            $entry = explode("=", $one, 2);
+            $entry = explode('=', $one, 2);
             $returnArray[$entry[0]] = $entry[1] ?? null;
         }
+
         return array_filter(
             $returnArray,
             static function ($key) {
-                return !empty($key);
+                return ! empty($key);
             },
             ARRAY_FILTER_USE_KEY
         );
     }
 
     /**
-     * @param array<string, string|null> $array
-     * @return int
+     * @param  array<string, string|null>  $array
      */
     protected function saveEnvFromArray(array $array): int
     {
         $newArray = [];
-        $keyWithNewLine = ['APP_URL', 'LOG_LEVEL','DB_PASSWORD', 'SESSION_LIFETIME', 'MEMCACHED_HOST', 'REDIS_PORT','MAIL_FROM_NAME','AWS_USE_PATH_STYLE_ENDPOINT','PUSHER_APP_CLUSTER', 'VITE_PUSHER_APP_CLUSTER'];
+        $keyWithNewLine = ['APP_URL', 'LOG_LEVEL', 'DB_PASSWORD', 'SESSION_LIFETIME', 'MEMCACHED_HOST', 'REDIS_PORT', 'MAIL_FROM_NAME', 'AWS_USE_PATH_STYLE_ENDPOINT', 'PUSHER_APP_CLUSTER', 'VITE_PUSHER_APP_CLUSTER'];
         foreach ($array as $key => $value) {
             if (preg_match('/\s/', $value) > 0 && strpos($value, '"') !== 0 && strrpos($value, '"') != (strlen($value) - 1)) {
-                $value = '"' . $value . '"';
+                $value = '"'.$value.'"';
             }
 
-            $newArray[] = $key . "=" . $value;
-            if(in_array($key, $keyWithNewLine)){
-                $newArray[] = "";
+            $newArray[] = $key.'='.$value;
+            if (in_array($key, $keyWithNewLine)) {
+                $newArray[] = '';
             }
         }
         $newArray = implode("\n", $newArray);
-        file_put_contents(base_path() . '/.env', $newArray);
+        file_put_contents(base_path().'/.env', $newArray);
+
         return self::SUCCESS;
     }
 
-
-    /**
-     * @return int
-     */
     protected function validateAppEnvData(): int
     {
         $validator = Validator::make([
@@ -154,6 +153,7 @@ trait WithEnvTrait
             foreach ($validator->errors()->all() as $error) {
                 $this->error($error);
             }
+
             return self::FAILURE;
         }
 
