@@ -31,7 +31,6 @@ trait WithEnvTrait
                 if ($resultOverWrite === self::SUCCESS) {
                     $this->setEnv();
                     $this->callSilent('key:generate');
-                    $this->callSilent('optimize:clear');
                 }
             } else {
                 $this->setEnv();
