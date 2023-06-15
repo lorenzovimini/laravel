@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Env;
 use Laminas\Text\Figlet\Figlet;
 
 class AppInstall extends Command
@@ -40,32 +41,9 @@ class AppInstall extends Command
             return $this->setAppEnv();
         });
         $this->callSilent('key:generate');
-        $envData = $this->envToArray(base_path().'/.env');
-        foreach ($envData as $key => $value) {
-            putenv("{$key}={$value}");
-        }
-
-        $this->setCore();
         $this->callSilent('optimize:clear');
         $this->callSilent('config:clear');
         $this->callSilent('cache:clear');
-
-
         return self::SUCCESS;
-    }
-
-    protected function setCore(): void
-    {
-        $this->task('Install Core', function () {
-            $result = $this->call('exceptions:install');
-            $this->line('Exceptions installed');
-            sleep(2);
-            $result += $this->call('shield:install');
-            sleep(2);
-            $this->line('Shield installed');
-            $result += $this->call('shield:generate');
-            sleep(2);
-            return $result;
-        });
     }
 }

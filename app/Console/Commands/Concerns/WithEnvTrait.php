@@ -12,7 +12,7 @@ trait WithEnvTrait
         'APP_URL' => 'http://wta.test',
         'DB_HOST' => '127.0.0.1',
         'DB_PORT' => '3306',
-        'DB_DATABASE' => 'wtadmin',
+        'DB_DATABASE' => 'admin',
         'DB_USERNAME' => 'admin',
         'DB_PASSWORD' => 'password01!',
         'LOG_CHANNEL' => 'daily',

@@ -35,10 +35,8 @@ class AppPostInstallCommand extends Command
     {
         $this->task('Install Core', function () {
             $result = $this->call('exceptions:install');
-            $this->line('Exceptions installed');
-            $result += $this->call('shield:install');
-            $this->line('Shield installed');
-            $result += $this->call('shield:generate');
+            $result += $this->call('shield:install',['--minimal']);
+            $result += $this->call('shield:generate', ['--minimal']);
             return $result;
         });
     }
