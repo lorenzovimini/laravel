@@ -11,7 +11,7 @@ return new class() extends Migration
      */
     public function up(): void
     {
-        Schema::create('countries', function (Blueprint $table) {
+        Schema::create('geo_zones', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
             $table->boolean('active')->default(0);
@@ -38,6 +38,6 @@ return new class() extends Migration
     public function down(): void
     {
         Schema::dropIfExists('geo_zone_zone');
-        Schema::dropIfExists('countries');
+        Schema::dropIfExists('geo_zones');
     }
 };
