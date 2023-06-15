@@ -36,16 +36,23 @@ class AppInstall extends Command
         echo $figlet
             ->setFont(base_path().'/resources/console-fonts/standard.flf')
             ->render('WtaInstaller');
-        $result = $this->setAppEnv();
-        $result += $this->setCore();
+        $this->task('Install Env', function () {
+            $this->callSilent('session:table');
+            $result = $this->setAppEnv();
+            $result += $this->setCore();
+            return $result;
+        });
 
-        return $result;
+        return self::SUCCESS;
     }
 
     protected function setCore(): int
     {
-        $this->task('Install Core', function () {
-        });
+        //$this->task('Install Core', function () {
+            $this->call('exceptions:install');
+            $this->call('shield:install');
+            $this->call('shield:generate');
+        //});
 
         return self::SUCCESS;
     }

@@ -7,30 +7,19 @@ use Illuminate\Support\Facades\Validator;
 
 trait WithEnvTrait
 {
-    protected string|null $appName = 'WTA';
-
-    protected string|null $dbHost = '127.0.0.1';
-
-    protected string|null $dbPort = '3306';
-
-    protected string|null $dbName = 'wtadmin';
-
-    protected string|null $dbUser = 'admin';
-
-    protected string|null $dbPassword = 'password01!';
-
-    protected array $currentEnvData = [
+    protected array $defaultEnvData = [
         'APP_NAME' => 'WTA',
-        'APP_URL' => 'http://localhost',
+        'APP_URL' => 'http://wta.test',
         'DB_HOST' => '127.0.0.1',
         'DB_PORT' => '3306',
         'DB_DATABASE' => 'wtadmin',
         'DB_USERNAME' => 'admin',
         'DB_PASSWORD' => 'password01!',
         'LOG_CHANNEL' => 'daily',
+        'SESSION_DRIVER' => 'database'
     ];
 
-    //protected array $newEnvData =[];
+    protected array $newEnvData = [];
 
     protected function setAppEnv(): int
     {
@@ -56,36 +45,34 @@ trait WithEnvTrait
     {
         $result = self::FAILURE;
         while ($result === self::FAILURE) {
-            $currentEnvData = $this->envToArray(base_path().'/.env');
-            $this->appName = $this->ask('What is the name of your application?', $currentEnvData['APP_NAME'] ?? $this->appName);
-            $this->dbHost = $this->ask('What is the db host of your application?', $currentEnvData['DB_HOST'] ?? $this->dbHost);
-            $this->dbName = $this->ask('What is the db name of your application?', $currentEnvData['DB_DATABASE'] ?? $this->dbName);
-            $this->dbPort = $this->ask('What is the db port of your application?', $currentEnvData['DB_PORT'] ?? $this->dbPort);
-            $this->dbUser = $this->ask('What is the db user of your application?', $currentEnvData['DB_USER'] ?? $this->dbUser);
-            $this->dbPassword = $this->ask('What is the db password of your application?', $currentEnvData['DB_PASSWORD'] ?? $this->dbPassword);
+            $this->newEnvData = [...$this->defaultEnvData, ...$this->envToArray(base_path() . '/.env')];
+            $this->newEnvData['APP_NAME'] = $this->ask('What is the name of your application?', $this->newEnvData['APP_NAME']);
+            $this->newEnvData['DB_HOST'] = $this->ask('What is the db host of your application?', $this->newEnvData['DB_HOST']);
+            $this->newEnvData['DB_DATABASE'] = $this->ask('What is the db name of your application?', $this->newEnvData['DB_DATABASE'] );
+            $this->newEnvData['DB_PORT'] = $this->ask('What is the db port of your application?', $this->newEnvData['DB_PORT']);
+            $this->newEnvData['DB_USERNAME'] = $this->ask('What is the db user of your application?', $this->newEnvData['DB_USERNAME']);
+            $this->newEnvData['DB_PASSWORD'] = $this->ask('What is the db password of your application?', $this->newEnvData['DB_PASSWORD']);
             $result = $this->validateAppEnvData();
+            try {
+                $conn = @mysqli_connect($this->newEnvData['DB_HOST'], $this->newEnvData['DB_USERNAME'], $this->newEnvData['DB_PASSWORD'], $this->newEnvData['DB_DATABASE']);
+            } catch (\Exception $e) {
+                $result += self::FAILURE;
+                $this->error('Connection failed! Error: ' . $e->getMessage());
+            }
         }
 
-        $envData = $this->envToArray(base_path().'/.env.example');
-        $envData['APP_NAME'] = $this->appName;
-        $envData['DB_HOST'] = $this->dbHost;
-        $envData['DB_PORT'] = $this->dbPort;
-        $envData['DB_DATABASE'] = $this->dbName;
-        $envData['DB_USERNAME'] = $this->dbUser;
-        $envData['DB_PASSWORD'] = $this->dbPassword;
-
+        $envData = [...$this->envToArray(base_path().'/.env.example'), ...$this->newEnvData];
         $result += $this->saveEnvFromArray($envData);
-
         return $result;
     }
 
     /**
      * @return array<string, string|null>
      */
-    protected function envToArray(string $file): ?array
+    protected function envToArray(string $file): array
     {
         if (! File::exists($file)) {
-            return null;
+            return [];
         }
         $string = file_get_contents($file);
         $string = preg_split('/\n+/', $string);
@@ -114,7 +101,7 @@ trait WithEnvTrait
     protected function saveEnvFromArray(array $array): int
     {
         $newArray = [];
-        $keyWithNewLine = ['APP_URL', 'LOG_LEVEL', 'DB_PASSWORD', 'SESSION_LIFETIME', 'MEMCACHED_HOST', 'REDIS_PORT', 'MAIL_FROM_NAME', 'AWS_USE_PATH_STYLE_ENDPOINT', 'PUSHER_APP_CLUSTER', 'VITE_PUSHER_APP_CLUSTER'];
+        $keyWithNewLine = ['APP_URL', 'LOG_LEVEL', 'DEBUGBAR_ENABLED', 'DB_PASSWORD', 'SESSION_LIFETIME', 'MEMCACHED_HOST', 'REDIS_PORT', 'MAIL_FROM_NAME', 'AWS_USE_PATH_STYLE_ENDPOINT', 'PUSHER_APP_CLUSTER', 'VITE_PUSHER_APP_CLUSTER'];
         foreach ($array as $key => $value) {
             if (preg_match('/\s/', $value) > 0 && strpos($value, '"') !== 0 && strrpos($value, '"') != (strlen($value) - 1)) {
                 $value = '"'.$value.'"';
@@ -134,12 +121,12 @@ trait WithEnvTrait
     protected function validateAppEnvData(): int
     {
         $validator = Validator::make([
-            'name' => $this->appName,
-            'dbHost' => $this->dbHost,
-            'dbName' => $this->dbName,
-            'dbPort' => $this->dbPort,
-            'dbUser' => $this->dbUser,
-            'dbPassword' => $this->dbPassword,
+            'name' => $this->newEnvData['APP_NAME'],
+            'dbHost' => $this->newEnvData['DB_HOST'],
+            'dbName' => $this->newEnvData['DB_DATABASE'],
+            'dbPort' => $this->newEnvData['DB_PORT'],
+            'dbUser' => $this->newEnvData['DB_USERNAME'],
+            'dbPassword' => $this->newEnvData['DB_PASSWORD'],
         ], [
             'name' => 'required|string|max:255',
             'dbHost' => 'required|string|max:255',
