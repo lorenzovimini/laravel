@@ -40,11 +40,16 @@ class AppInstall extends Command
             return $this->setAppEnv();
         });
         $this->callSilent('key:generate');
+        $envData = $this->envToArray(base_path().'/.env');
+        foreach ($envData as $key => $value) {
+            putenv("{$key}={$value}");
+        }
+
+        $this->setCore();
         $this->callSilent('optimize:clear');
         $this->callSilent('config:clear');
         $this->callSilent('cache:clear');
-        sleep(2);
-        $this->setCore();
+
 
         return self::SUCCESS;
     }
