@@ -40,6 +40,7 @@ class AppInstall extends Command
             return $this->setAppEnv();
         });
         $this->callSilent('key:generate');
+        sleep(2);
         $this->setCore();
         $this->callSilent('optimize:clear');
         $this->callSilent('config:clear');
