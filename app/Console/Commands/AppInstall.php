@@ -40,8 +40,10 @@ class AppInstall extends Command
             return $this->setAppEnv();
         });
         $this->callSilent('key:generate');
-        sleep(2);
         $this->setCore();
+        $this->callSilent('optimize:clear');
+        $this->callSilent('config:clear');
+        $this->callSilent('cache:clear');
 
         return self::SUCCESS;
     }
@@ -50,8 +52,13 @@ class AppInstall extends Command
     {
         $this->task('Install Core', function () {
             $result = $this->call('exceptions:install');
+            $this->line('Exceptions installed');
+            sleep(2);
             $result += $this->call('shield:install');
+            sleep(2);
+            $this->line('Shield installed');
             $result += $this->call('shield:generate');
+            sleep(2);
             return $result;
         });
     }
