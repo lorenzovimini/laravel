@@ -30,7 +30,6 @@ trait WithEnvTrait
                 $resultOverWrite = $this->confirm('Do you want to overwrite your .env file?') ? self::SUCCESS : self::FAILURE;
                 if ($resultOverWrite === self::SUCCESS) {
                     $this->setEnv();
-                    $this->callSilent('key:generate');
                 }
             } else {
                 $this->setEnv();

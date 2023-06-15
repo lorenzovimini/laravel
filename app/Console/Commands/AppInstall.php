@@ -39,6 +39,8 @@ class AppInstall extends Command
         $this->task('Install Env', function () {
             return $this->setAppEnv();
         });
+        $this->callSilent('key:generate');
+        sleep(2);
         $this->setCore();
 
         return self::SUCCESS;
