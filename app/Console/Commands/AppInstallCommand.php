@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
+use Database\Seeders\CountrySeeder;
+use Database\Seeders\ZoneSeeder;
 use Illuminate\Console\Command;
-use Illuminate\Support\Env;
 use Laminas\Text\Figlet\Figlet;
 
-class AppInstall extends Command
+class AppInstallCommand extends Command
 {
     use Concerns\WithStubTrait;
     use Concerns\WithEnvTrait;
@@ -38,12 +39,25 @@ class AppInstall extends Command
             ->setFont(base_path().'/resources/console-fonts/standard.flf')
             ->render('WtaInstaller');
         $this->task('Install Env', function () {
-            return $this->setAppEnv();
+            $this->setAppEnv();
+
+            return self::SUCCESS;
         });
+
+        if ($this->option('seed')) {
+            $this->task('Install Env', function () {
+                $this->call('db:seed', ['--class' => CountrySeeder::class]);
+                $this->call('db:seed', ['--class' => ZoneSeeder::class]);
+
+                return self::SUCCESS;
+            });
+        }
+
         $this->callSilent('key:generate');
         $this->callSilent('optimize:clear');
         $this->callSilent('config:clear');
         $this->callSilent('cache:clear');
+
         return self::SUCCESS;
     }
 }

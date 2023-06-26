@@ -7,7 +7,7 @@ return [
     'excludes' => [
         // App\Filament\Resources\Blog\AuthorResource::class,
     ],
-    'should_convert_count' => true,
+    'should_convert_count' => false,
     'enable_convert_tooltip' => true,
     'grid' => [
         'default' => 2,

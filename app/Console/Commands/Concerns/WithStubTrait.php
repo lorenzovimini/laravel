@@ -12,21 +12,23 @@ trait WithStubTrait
     public function copyStub(string $source, string $destination, array $replacements = []): int
     {
         $stub = $this->getStubContent($source, $replacements);
-
         return $this->writeFile($destination, $stub);
     }
 
     /**
+     * @param string $name
+     * @param array $replacements
+     * @return int
      * @throws \Exception
      */
-    public function copyResourceStubToApp(string $name): int
+    public function copyResourceStubToApp(string $name, array $replacements = []): int
     {
         $result = 0;
-        $result += $this->copyFolderStubToApp("WtaInstaller/app/Filament/Resources/{$name}Resource");
-        $result += $this->copyStubToApp("WtaInstaller/app/Filament/Resources/{$name}Resource.stub");
+        $result += $this->copyFolderStubToApp("WtaInstaller/app/Filament/Resources/{$name}Resource", $replacements);
+        $result += $this->copyStubToApp("WtaInstaller/app/Filament/Resources/{$name}Resource.php.stub", $replacements);
 
-        if (File::exists(base_path()."/stubs/WtaInstaller/app/Models/{$name}.stub")) {
-            $result += $this->copyStubToApp("WtaInstaller/app/Models/{$name}.stub");
+        if (File::exists($this->stubsBasePath ."Models/{$name}.stub")) {
+            $result += $this->copyStubToApp("app/Models/{$name}.stub", $replacements);
         }
 
         return $result;
@@ -82,7 +84,7 @@ trait WithStubTrait
         array $includes = ['*']
     ): int {
         $result = 0;
-        $listFiles = collect(File::allFiles($this->localPath.'/stubs/'.$relativeFolderPath, true));
+        $listFiles = collect(File::allFiles($this->stubsBasePath . '/stubs/' . $relativeFolderPath, true));
         $listFiles
             ->each(function (\SplFileInfo $file) use ($includes, $excludes, $relativeFolderPath, $replacements, &$result) {
                 $included = $includes === ['*'] || collect($includes)
@@ -97,12 +99,12 @@ trait WithStubTrait
                     ->count() > 0;
                 if ($file->getExtension() === 'stub'
                     && $included
-                    && ! $excluded
+                    && !$excluded
                 ) {
                     $result += $this->copyStub(
                         source: $file->getPathname(),
-                        destination: Str::of($this->rootPath.$relativeFolderPath.'/'.$file->getRelativePathname())
-                            ->replace('.stub', '.php'),
+                        destination: Str::of($this->stubsBasePath . $relativeFolderPath.'/'.$file->getRelativePathname())
+                            ->replace('.stub', ''),
                         replacements: ['namespace' => app()->getNamespace(), ...$replacements],
                     );
                 }
@@ -119,7 +121,7 @@ trait WithStubTrait
         $stubName = Str::of($stubName)
             ->replace('.stub', '')
             ->append('.stub');
-        $destination = $this->rootPath.Str::of('config/'.$stubName)->replace('.stub', '.php');
+        $destination = $this->rootPath . Str::of('config/'.$stubName)->replace('.stub', '');
 
         return $this->copyStubToApp(
             relativeFolderFile: 'config/'.$stubName,
@@ -128,6 +130,11 @@ trait WithStubTrait
         );
     }
 
+    /**
+     * @param string $path
+     * @param string $contents
+     * @return int
+     */
     private function writeFile(string $path, string $contents): int
     {
         $pathFolder = Str::of($path)->beforeLast('/');
@@ -140,6 +147,11 @@ trait WithStubTrait
         return 0;
     }
 
+    /**
+     * @param string $stubPathAndName
+     * @param array $replacements
+     * @return string
+     */
     private function getStubContent(string $stubPathAndName, array $replacements = []): string
     {
         $content = File::get($stubPathAndName);

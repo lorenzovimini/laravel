@@ -1,0 +1,84 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ resource }}\Filament\Resources\Concerns\HasPagePersistent;
+use {{ resource }}\Pages;
+use {{ resource }}\RelationManagers;
+use App\Models\{{ model }};
+use Filament\Forms;
+use Filament\Resources\Form;
+use Filament\Resources\Resource;
+use Filament\Resources\Table;
+use Filament\Tables;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class {{ resourceClass }} extends Resource
+{
+    use HasPagePersistent;
+
+    protected static string|null $model = {{ modelClass }}::class;
+    //protected static string|null $recordTitleAttribute = '';
+    //protected static string|null $modelLabel = '';
+    //protected static string|null $pluralLabel = '';
+
+    protected static string|null $navigationIcon = 'heroicon-o-collection';
+    //protected static string|null $navigationGroup = '';
+    //protected static int|null $navigationSort = 0;
+
+
+    /**
+     * @return string[]
+     */
+    /*
+    public static function getGloballySearchableAttributes(): array
+    {
+         return ['email', ...];
+    }
+    */
+
+    /**
+     * @return array<string, string>
+     */
+    /*
+    public static function getGlobalSearchResultDetails(Contact|Model $record): array
+    {
+        return [
+            'E-mail' => $record->email,
+        ];
+    }
+    */
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+{{ formSchema }}
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+{{ tableColumns }}
+            ])
+            ->filters([
+{{ tableFilters }}
+            ])
+            ->actions([
+{{ tableActions }}
+            ])
+            ->bulkActions([
+{{ tableBulkActions }}
+            ]);
+    }
+{{ relations }}
+    public static function getPages(): array
+    {
+        return [
+{{ pages }}
+        ];
+    }{{ eloquentQuery }}
+}

@@ -15,5 +15,9 @@
         "tailwindcss": "^3.3.2",
         "tippy.js": "^6.3.7",
         "vite": "^4.3.9"
+    },
+    "dependencies": {
+        "@ryangjchandler/alpine-hooks": "^1.0.0",
+        "croppie": "^2.6.5"
     }
 }

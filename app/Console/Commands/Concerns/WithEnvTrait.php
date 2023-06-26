@@ -16,7 +16,7 @@ trait WithEnvTrait
         'DB_USERNAME' => 'admin',
         'DB_PASSWORD' => 'password01!',
         'LOG_CHANNEL' => 'daily',
-        'SESSION_DRIVER' => 'database'
+        'SESSION_DRIVER' => 'database',
     ];
 
     protected array $newEnvData = [];
@@ -43,10 +43,10 @@ trait WithEnvTrait
     {
         $result = self::FAILURE;
         while ($result === self::FAILURE) {
-            $this->newEnvData = [...$this->defaultEnvData, ...$this->envToArray(base_path() . '/.env')];
+            $this->newEnvData = [...$this->defaultEnvData, ...$this->envToArray(base_path().'/.env')];
             $this->newEnvData['APP_NAME'] = $this->ask('What is the name of your application?', $this->newEnvData['APP_NAME']);
             $this->newEnvData['DB_HOST'] = $this->ask('What is the db host of your application?', $this->newEnvData['DB_HOST']);
-            $this->newEnvData['DB_DATABASE'] = $this->ask('What is the db name of your application?', $this->newEnvData['DB_DATABASE'] );
+            $this->newEnvData['DB_DATABASE'] = $this->ask('What is the db name of your application?', $this->newEnvData['DB_DATABASE']);
             $this->newEnvData['DB_PORT'] = $this->ask('What is the db port of your application?', $this->newEnvData['DB_PORT']);
             $this->newEnvData['DB_USERNAME'] = $this->ask('What is the db user of your application?', $this->newEnvData['DB_USERNAME']);
             $this->newEnvData['DB_PASSWORD'] = $this->ask('What is the db password of your application?', $this->newEnvData['DB_PASSWORD']);
@@ -55,12 +55,13 @@ trait WithEnvTrait
                 $conn = @mysqli_connect($this->newEnvData['DB_HOST'], $this->newEnvData['DB_USERNAME'], $this->newEnvData['DB_PASSWORD'], $this->newEnvData['DB_DATABASE']);
             } catch (\Exception $e) {
                 $result += self::FAILURE;
-                $this->error('Connection failed! Error: ' . $e->getMessage());
+                $this->error('Connection failed! Error: '.$e->getMessage());
             }
         }
 
         $envData = [...$this->envToArray(base_path().'/.env.example'), ...$this->newEnvData];
         $result += $this->saveEnvFromArray($envData);
+
         return $result;
     }
 

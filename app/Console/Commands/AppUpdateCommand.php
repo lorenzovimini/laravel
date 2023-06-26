@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Process;
 
-class AppUpdate extends Command
+class AppUpdateCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -25,6 +26,10 @@ class AppUpdate extends Command
      */
     public function handle(): void
     {
-        //
+        $this->task('Update App', function () {
+            Process::quietly()->run('composer update');
+            Process::quietly()->run('npm update');
+            Process::quietly()->run('vite build');
+        });
     }
 }
