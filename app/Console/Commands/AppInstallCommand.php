@@ -17,7 +17,7 @@ class AppInstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:install
+    protected $signature = 'wta:install
         {--force : Overwrite existing files}
         {--seed : Install seeds}
         {--debug : Debug mode}';

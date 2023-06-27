@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-use {{ resource }}\Filament\Resources\Concerns\HasPagePersistent;
+use {{ namespace }}\Filament\Resources\Concerns\HasPagePersistent;
 use {{ resource }}\Pages;
 use {{ resource }}\RelationManagers;
 use App\Models\{{ model }};
