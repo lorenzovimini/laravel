@@ -17,14 +17,14 @@ return [
 
     'super_admin' => [
         'enabled' => true,
-        'name' => 'super_admin',
+        'name' => 'SuperAdmin',
         'define_via_gate' => false,
         'intercept_gate' => 'before', // after
     ],
 
     'filament_user' => [
         'enabled' => true,
-        'name' => 'filament_user',
+        'name' => 'User',
     ],
 
     'permission_prefixes' => [
