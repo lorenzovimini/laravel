@@ -11,7 +11,7 @@ class AppPostInstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:post-install';
+    protected $signature = 'wta:post-install';
 
     /**
      * The console command description.

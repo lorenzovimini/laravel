@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-use {{ namespace }}\Filament\Resources\Concerns\HasPagePersistent;
+use {{ namespace }}\Concerns\HasPagePersistent;
 use {{ resource }}\Pages;
 use {{ resource }}\RelationManagers;
 use App\Models\{{ model }};
@@ -13,6 +13,9 @@ use Filament\Resources\Table;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use RalphJSmit\Filament\Components\Forms\CreatedAt;
+use RalphJSmit\Filament\Components\Forms\Sidebar;
+use RalphJSmit\Filament\Components\Forms\UpdatedAt;
 
 class {{ resourceClass }} extends Resource
 {
@@ -42,7 +45,7 @@ class {{ resourceClass }} extends Resource
      * @return array<string, string>
      */
     /*
-    public static function getGlobalSearchResultDetails(Contact|Model $record): array
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
     {
         return [
             'E-mail' => $record->email,
@@ -52,10 +55,24 @@ class {{ resourceClass }} extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-{{ formSchema }}
-            ]);
+
+        return Sidebar::make($form)
+           ->schema([
+                   Forms\Components\Card::make([
+                       Forms\Components\Grid::make()->columns(2)->schema([
+        {{ formSchema }}
+                       ]),
+                   ]),
+               ],
+               [
+                   Forms\Components\Card::make([
+                       Forms\Components\Grid::make()->columns(1)->schema([
+                           CreatedAt::make('created_at'),
+                           UpdatedAt::make('updated_at'),
+                       ]),
+                   ]),
+               ]);
+
     }
 
     public static function table(Table $table): Table
