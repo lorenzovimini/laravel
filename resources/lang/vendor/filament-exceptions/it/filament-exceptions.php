@@ -3,13 +3,13 @@
 return [
 
     'labels' => [
-        'model' => 'Exception',
-        'model_plural' => 'Exceptions',
-        'navigation' => 'Exception',
+        'model' => 'Eccezione',
+        'model_plural' => 'Eccezioni',
+        'navigation' => 'Eccezioni',
         'navigation_group' => 'System',
 
         'pills' => [
-            'exception' => 'Exception',
+            'exception' => 'Eccezione',
             'headers' => 'Headers',
             'cookies' => 'Cookies',
             'body' => 'Body',
