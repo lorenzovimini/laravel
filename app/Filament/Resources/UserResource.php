@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\HasPagePersistent;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
@@ -14,6 +15,7 @@ use STS\FilamentImpersonate\Impersonate;
 
 class UserResource extends Resource
 {
+    use HasPagePersistent;
     protected static string|null $model = User::class;
 
     protected static string|null $modelLabel = 'Utenti';
